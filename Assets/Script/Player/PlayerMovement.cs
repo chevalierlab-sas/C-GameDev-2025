@@ -8,12 +8,11 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed;
     public float sprintSpeed;
-
     public float groundDrag;
-
     public float jumpForce;
     public float jumpCooldown;
     public float airMultiplier;
+    public Transform orientation;
     bool readyToJump;
     bool isSprinting;
 
@@ -28,8 +27,6 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Animator")]
     public Animator animator;
-
-    public Transform orientation;
 
     float horizontalInput;
     float verticalInput;
@@ -51,8 +48,8 @@ public class PlayerMovement : MonoBehaviour
         isSprinting = Input.GetKey(sprintKey) && grounded;
         animator.SetBool("isGrounded", grounded);
         animator.SetBool("isWalking", horizontalInput != 0 || verticalInput != 0);
-        animator.SetBool("isRunning", horizontalInput != 0 || verticalInput != 0 && isSprinting);
-        animator.SetBool("isJumping", !grounded );
+        animator.SetBool("isRunning", horizontalInput != 0 && isSprinting || verticalInput != 0 && isSprinting);
+        animator.SetBool("isJumping", !grounded);
 
         // ground check
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, whatIsGround);
@@ -74,8 +71,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void MyInput()
     {
-        horizontalInput = Input.GetAxisRaw("Horizontal");
-        verticalInput = Input.GetAxisRaw("Vertical");
+        horizontalInput = Input.GetAxis("Horizontal");
+        verticalInput = Input.GetAxis("Vertical");
 
         // when to jump
         if (Input.GetKey(jumpKey) && readyToJump && grounded)

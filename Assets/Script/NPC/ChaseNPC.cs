@@ -1,16 +1,19 @@
 using UnityEngine;
 using UnityEngine.AI;
+using Unity.VisualScripting;
+using System.Collections;
 
 public class ChaseNPC : MonoBehaviour
 {
     public float patrolRadius = 20f;
+    public float detectionRadius = 30f;
     public Transform player;
+    public float damage = 10f;
 
     private NavMeshAgent navMeshAgent;
     private Vector3 patrolTarget;
-
-    public float detectionRadius = 30f;
     private Vector3 originalPosition;
+    private bool isPatrolling = true;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -29,28 +32,39 @@ public class ChaseNPC : MonoBehaviour
     void Update()
     {
         navMeshAgent.SetDestination(patrolTarget);
-
-        if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
-        {
-            navMeshAgent.SetDestination(player.position);
-        }
-
         float distanceToPlayer = Vector3.Distance(player.position, transform.position);
 
         if (distanceToPlayer <= detectionRadius)
         {
+            StopCoroutine(Patrol());
+            isPatrolling = false;
             navMeshAgent.SetDestination(player.position);
+        }
+        else
+        {
+            if (!isPatrolling)
+            {
+                StartCoroutine(Patrol());
+                isPatrolling = true;
+            }
         }
     }
 
 
-    /*void SetNewPatrolTarget()
+    IEnumerator Patrol()
     {
-        Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
-        randomDirection += transform.position;
-        NavMeshHit navHit;
-        NavMesh.SamplePosition(randomDirection, out navHit, patrolRadius, -1);
-        patrolTarget = navHit.position;
-    }*/
+        while (isPatrolling)
+        {
+            Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
+            randomDirection += originalPosition;
 
+            NavMeshHit hit;
+            NavMesh.SamplePosition(randomDirection, out hit, patrolRadius, 1);
+            Vector3 finalPosition = hit.position;
+
+            navMeshAgent.SetDestination(finalPosition);
+
+            yield return new WaitForSeconds(Random.Range(3f, 7f)); // Wait for a random amount of time before moving again
+        }
+    }
 }
