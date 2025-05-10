@@ -85,5 +85,6 @@ public class PlayerHealth : MonoBehaviour
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+        
     }
 }
