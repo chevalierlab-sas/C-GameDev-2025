@@ -4,26 +4,30 @@ using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public PlayerStats stats;
+    //public PlayerStats stats;
+    public float Health = 100f;
     public float maxHealth;
     public float currentHealth;
     public UnityEngine.UI.Image HealthBar;
     public GameObject LoseCanvas;
+    private float nextAttackTime = 0f;
+    private bool isDead = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        maxHealth = stats.Health;
+        maxHealth = Health;
         currentHealth = maxHealth;
+        isDead = false;
         updateHealthBar();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Y) && currentHealth < maxHealth)
+        if (Input.GetKeyDown(KeyCode.Y) && currentHealth < maxHealth && !isDead)
         {
-            gainHP(10);
+            gainHP(25);
             Debug.Log("Gained HP");
         }
     }
@@ -32,13 +36,14 @@ public class PlayerHealth : MonoBehaviour
     {
         if (other.transform.root.CompareTag("BadGuy"))
         {
-            takeDamage(15);
+            nextAttackTime = Time.time + 1f;
+            takeDamage(50);
             Debug.Log("Took Damage");
             Debug.Log("Health: " + currentHealth);
         }
     }
 
-    void takeDamage(float damage)
+    public void takeDamage(float damage)
     {
         currentHealth = currentHealth - damage;
         if (currentHealth <= 0)
@@ -70,6 +75,7 @@ public class PlayerHealth : MonoBehaviour
     void Die()
     {
         ShowLoseScreen();
+        isDead = true;
         //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
     void ShowLoseScreen()
