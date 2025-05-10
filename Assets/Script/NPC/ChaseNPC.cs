@@ -49,7 +49,13 @@ public class ChaseNPC : MonoBehaviour
             }
         }
     }
-
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.transform.root.CompareTag("player")) {
+            StartCoroutine(Attack());
+        }
+        
+    }
 
     IEnumerator Patrol()
     {
@@ -66,5 +72,17 @@ public class ChaseNPC : MonoBehaviour
 
             yield return new WaitForSeconds(Random.Range(3f, 7f)); // Wait for a random amount of time before moving again
         }
+    }
+
+    IEnumerator Attack()
+    {
+        PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+        //yield return new WaitForSeconds(0.4f);
+        if (playerHealth != null)
+        {
+            playerHealth.takeDamage(damage);
+        }
+        yield return new WaitForSeconds(0.1f);
+
     }
 }
